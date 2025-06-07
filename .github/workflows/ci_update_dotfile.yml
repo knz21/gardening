@@ -1,27 +1,46 @@
 name: CI_UPDATE_DOTFILE
+
 on:
   schedule:
-    - cron: '0 0-18/2 * * *'
+    - cron: '0 * * * *'    # run at minute 0 of every hour
   workflow_dispatch:
+
 jobs:
-  build:
+  update-dotfile:
     runs-on: ubuntu-latest
     steps:
-      - run: echo "RANDOM=$((RANDOM%3))" >> $GITHUB_ENV
+
+      - name: Determine execution eligibility
+        id: exec_check
         shell: bash
+        run: |
+          TODAY=$(date +%Y%m%d)
+          HASH8=$(echo -n "$TODAY" | md5sum | cut -c1-8)
+          RUN_HOUR=$((16#$HASH8 % 24))
+          CURRENT_HOUR=$(date +%H | sed 's/^0*//')
+          CURRENT_HOUR=${CURRENT_HOUR:-0}
+          echo "Scheduled run hour: $RUN_HOUR, current hour: $CURRENT_HOUR"
+          if [ "$CURRENT_HOUR" != "$RUN_HOUR" ] && [ $((RANDOM % 5)) -ne 0 ]; then
+            echo "skip=true" >> $GITHUB_OUTPUT
+            echo "::notice::Skipping update this hour"
+          else
+            echo "skip=false" >> $GITHUB_OUTPUT
+            echo "::notice::Proceeding with update"
+          fi
 
-      - if: env.RANDOM > 0
-        name: Cancelling
-        uses: andymckay/cancel-action@0.2
+      - name: Abort if skipped
+        if: steps.exec_check.outputs.skip == 'true'
+        run: exit 0
 
-      - if: env.RANDOM > 0
-        name: Waiting for cancellation
-        run: sleep 30
-      
-      - uses: actions/checkout@v2
-      - run: |
-          git config --global user.name knz21
-          git config --global user.email 10508129+knz21@users.noreply.github.com
+      - uses: actions/checkout@v3
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "knz21"
+          git config --global user.email "10508129+knz21@users.noreply.github.com"
+
+      - name: Update & push dotfile
+        run: |
           echo "." >> dotfile
           git add dotfile
           git commit -m "update dotfile"
