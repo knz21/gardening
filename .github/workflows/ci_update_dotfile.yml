@@ -20,7 +20,7 @@ jobs:
           CURRENT_HOUR=$(date +%H | sed 's/^0*//')
           CURRENT_HOUR=${CURRENT_HOUR:-0}
           echo "Scheduled run hour: $RUN_HOUR, current hour: $CURRENT_HOUR"
-          if [ "$CURRENT_HOUR" != "$RUN_HOUR" ] && [ $((RANDOM % 5)) -ne 0 ]; then
+          if [ "$CURRENT_HOUR" != "$RUN_HOUR" ] && [ $((RANDOM % 7)) -ne 0 ]; then
             echo "skip=true" >> $GITHUB_OUTPUT
             echo "::notice::Skipping update this hour"
           else
@@ -29,7 +29,7 @@ jobs:
           fi
 
       - name: Abort if skipped
-        if: steps.exec_check.outputs.skip == 'true'
+        if: ${{ steps.exec_check.outputs.skip == 'true' }}
         run: exit 0
 
       - uses: actions/checkout@v3
