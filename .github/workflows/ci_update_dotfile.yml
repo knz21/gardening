@@ -17,8 +17,7 @@ jobs:
           TODAY=$(date +%Y%m%d)
           HASH8=$(echo -n "$TODAY" | md5sum | cut -c1-8)
           RUN_HOUR=$((16#$HASH8 % 24))
-          CURRENT_HOUR=$(date +%H | sed 's/^0*//')
-          CURRENT_HOUR=${CURRENT_HOUR:-0}
+          CURRENT_HOUR=$((10#$(date +%H)))
           echo "Scheduled run hour: $RUN_HOUR, current hour: $CURRENT_HOUR"
           if [ "$CURRENT_HOUR" != "$RUN_HOUR" ] && [ $((RANDOM % 7)) -ne 0 ]; then
             echo "skip=true" >> $GITHUB_OUTPUT
