@@ -31,18 +31,17 @@ jobs:
         run: |
           echo "Debug: skip value is '${{ steps.exec_check.outputs.skip }}'"
 
-      - name: Abort if skipped
-        if: ${{ steps.exec_check.outputs.skip == 'true' }}
-        run: exit 0
-
       - uses: actions/checkout@v3
+        if: ${{ steps.exec_check.outputs.skip == 'false' }}      
 
       - name: Configure Git
+        if: ${{ steps.exec_check.outputs.skip == 'false' }}
         run: |
           git config --global user.name "knz21"
           git config --global user.email "10508129+knz21@users.noreply.github.com"
 
       - name: Update & push dotfile
+        if: ${{ steps.exec_check.outputs.skip == 'false' }}
         run: |
           echo "." >> dotfile
           git add dotfile
