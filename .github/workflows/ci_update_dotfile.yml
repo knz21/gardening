@@ -27,6 +27,10 @@ jobs:
             echo "::notice::Proceeding with update"
           fi
 
+      - name: Debug skip output
+        run: |
+          echo "Debug: skip value is '${{ steps.exec_check.outputs.skip }}'"
+
       - name: Abort if skipped
         if: ${{ steps.exec_check.outputs.skip == 'true' }}
         run: exit 0
