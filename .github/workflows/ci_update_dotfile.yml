@@ -27,10 +27,6 @@ jobs:
             echo "::notice::Proceeding with update"
           fi
 
-      - name: Debug skip output
-        run: |
-          echo "Debug: skip value is '${{ steps.exec_check.outputs.skip }}'"
-
       - uses: actions/checkout@v3
         if: ${{ steps.exec_check.outputs.skip == 'false' }}      
 
